@@ -9,23 +9,22 @@ fetch("http://localhost:3000/api/products")
     const idLs = [];
 
     for (key in ls) {
-      idLs.push(key.split(" ")[0])
       console.log(ls[key]);
-   }
+    }
 
 
-    products.forEach(item => {
-      item.colors.forEach(color => {
-        if (ls[item._id + " " + color])
-         tmp = color;
 
-        })
+    for (item in ls) {
+      id = item.split(" ")[0]
+      console.log(id);
 
-        
+      color = item.split(" ")[1]
+      item = products.filter(el => el._id == id)
 
-        if (idLs.includes(item._id) == true) {
-        const cart__items = document.getElementById('cart__items');
-        cart__items.innerHTML += ` <article class="cart__item" data-id="${item._id}" data-color="${tmp}">
+
+
+      const cart__items = document.getElementById('cart__items');
+      cart__items.innerHTML += ` <article class="cart__item" data-id="${item._id}" data-color="${color}">
       <div class="cart__item__img">
         <img src="${item.imageUrl}" alt="${item.altTxt}">
       </div>
@@ -34,13 +33,13 @@ fetch("http://localhost:3000/api/products")
         <div class="cart__item__content__description">
       
           <h2>${item.name}</h2>
-          <p>${tmp}</p>
+          <p>${color}</p>
           <p> ${item.price}</p>
         </div>
         <div class="cart__item__content__settings">
           <div class="cart__item__content__settings__quantity">
             <p>Qté : </p>
-            <input type="number"  class="itemQuantity" name="itemQuantity" min="1" max="100" value="${ls[item._id + " " + tmp]}">
+            <input type="number"  class="itemQuantity" name="itemQuantity" min="1" max="100" value="${ls[item._id + " " + color]}">
           </div>
           <div class="cart__item__content__settings__delete">
             <p class="deleteItem">Supprimer</p>
@@ -51,99 +50,101 @@ fetch("http://localhost:3000/api/products")
       </section>
      
       `
-      }
-      let TotalQ = 0
-      let TotalPrice = 0
+    }
+    let TotalQ = 0
+    let TotalPrice = 0
+    for (el in ls) {
+      // console.log(el);
+      let id = el.split(" ")[0]
+
+      let p = products.find((product) => id == product._id)
+      console.log(p);
+      TotalQ += ls[el]
+      TotalPrice += p.price * TotalQ
+      //console.log(TotalPrice);
+
+    }
+
+    // document.getElementById("totalQuantity").innerHTML = TotalQ 
+    //document.getElementById('totalPrice').innerHTML = TotalPrice
+  })
+
+
+const cart__item = document.querySelector(".cart__item")
+let deleteItems = document.querySelectorAll(".deleteItem")
+deleteItems.forEach(itemdelete => {
+
+
+  itemdelete.addEventListener('click', deletequantity)
+})
+let productsChanges = document.querySelectorAll(".itemQuantity")
+productsChanges.forEach(el => {
+  el.addEventListener('change', ModifQuantity)
+})
+
+
+function ModifQuantity(e) {
+
+  const newQuantity = parseInt(e.target.value);
+
+  const article = e.target.closest("article")
+  const id = article.dataset.id
+  const color = article.dataset.color
+  const ls = JSON.parse(localStorage.cart)
+  console.log(ls);
+  let el2 = ls
+  el2[id + " " + color] = newQuantity
+  localStorage.cart = JSON.stringify(el2)
+  TotalQuantity(e)
+}
+
+function deletequantity(e) {
+
+  const article = e.target.closest("article")
+  const id = article.dataset.id
+  const color = article.dataset.color
+  const ls = JSON.parse(localStorage.cart)
+
+  delete ls[id + " " + color]
+
+  localStorage.cart = JSON.stringify(ls)
+  article.remove()
+  // location.href = "cart.html"
+}
+
+function TotalQuantity(e) {
+  const newQuantity = parseInt(e.target.value);
+  const ls = JSON.parse(localStorage.cart)
+  console.log(ls);
+  let TotalQ = 0
+  let TotalPrice = 0
+
+  fetch("http://localhost:3000/api/products")
+    .then(resp => resp.json())
+
+    .then(products => {
+
       for (el in ls) {
-       // console.log(el);
+        console.log(el);
         let id = el.split(" ")[0]
-        
+
         let p = products.find((product) => id == product._id)
         console.log(p);
         TotalQ += ls[el]
         TotalPrice += p.price * TotalQ
-       //console.log(TotalPrice);
+
       }
-      document.getElementById("totalQuantity").innerHTML = TotalQ 
+
+      document.getElementById("totalQuantity").innerHTML = TotalQ
       document.getElementById('totalPrice').innerHTML = TotalPrice
-    })
-    
-
-    const cart__item = document.querySelector(".cart__item")
-    let deleteItems = document.querySelectorAll(".deleteItem")
-    deleteItems.forEach(itemdelete => {
 
 
-      itemdelete.addEventListener('click', deletequantity)
-    })
-    let productsChanges = document.querySelectorAll(".itemQuantity")
-    productsChanges.forEach(el => {
-      el.addEventListener('change', ModifQuantity)
     })
 
-
-    function ModifQuantity(e) {
-
-      const newQuantity = parseInt(e.target.value);
-     
-      const article = e.target.closest("article")
-      const id = article.dataset.id
-      const color = article.dataset.color
-      const ls = JSON.parse(localStorage.cart)
-      console.log(ls);
-      let el2 = ls
-      el2[id + " " + color] = newQuantity
-      localStorage.cart = JSON.stringify(el2)
-      TotalQuantity(e)
-    }
-
-    function deletequantity(e) {
-
-      const article = e.target.closest("article")
-      const id = article.dataset.id
-      const color = article.dataset.color
-      const ls = JSON.parse(localStorage.cart)
-     
-      delete ls[id + " " + color]
-     
-      localStorage.cart = JSON.stringify(ls)
-      e.target.remove()
-      location.href = "cart.html"
-    }
-
-    function TotalQuantity(e) {
-      const newQuantity = parseInt(e.target.value);
-      const ls = JSON.parse(localStorage.cart)
-      console.log(ls);
-      let TotalQ = 0
-      let TotalPrice = 0
-
-      fetch("http://localhost:3000/api/products")
-        .then(resp => resp.json())
-
-        .then(products => {
-
-          for (el in ls) {
-            console.log(el);
-            let id = el.split(" ")[0]
-            
-            let p = products.find((product) => id == product._id)
-            console.log(p);
-            TotalQ += ls[el]
-            TotalPrice += p.price * TotalQ
-          
-          }
-           
-                document.getElementById("totalQuantity").innerHTML = TotalQ 
-                document.getElementById('totalPrice').innerHTML = TotalPrice
-               
-
-        })
-
-    }
+}
 
 
-  })
+
 
 
 let lastName = document.getElementById("lastName")
@@ -174,7 +175,7 @@ order.addEventListener("submit", function (e) {
 
   }
   //console.log(contact);
-  
+
 
   let cityTrue = cityRegex.test(city.value)
   let addressTrue = adressRegex.test(address.value)
