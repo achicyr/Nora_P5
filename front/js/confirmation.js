@@ -5,5 +5,5 @@ let params = (new URL(document.location)).searchParams;
 let orderId = params.get('orderId'); 
 document.getElementById('orderId').innerHTML=orderId
 if(orderId){
-    localStorage.clear();
+    delete localStorage.cart;
 }

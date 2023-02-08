@@ -19,7 +19,7 @@ fetch("http://localhost:3000/api/products")
       console.log(id);
 
       color = item.split(" ")[1]
-      item = products.filter(el => el._id == id)
+      item = products.filter(el => el._id == id)[0]
 
 
 
@@ -65,22 +65,23 @@ fetch("http://localhost:3000/api/products")
 
     }
 
-    // document.getElementById("totalQuantity").innerHTML = TotalQ 
-    //document.getElementById('totalPrice').innerHTML = TotalPrice
+    const cart__item = document.querySelector(".cart__item")
+    let deleteItems = document.querySelectorAll(".deleteItem")
+    deleteItems.forEach(itemdelete => {
+
+      
+      itemdelete.addEventListener('click', deletequantity)
+    })
+    let productsChanges = document.querySelectorAll(".itemQuantity")
+    productsChanges.forEach(el => {
+      el.addEventListener('change', ModifQuantity)
+    })
+ 
+    document.getElementById("totalQuantity").innerHTML = TotalQ
+    document.getElementById('totalPrice').innerHTML = TotalPrice
   })
 
 
-const cart__item = document.querySelector(".cart__item")
-let deleteItems = document.querySelectorAll(".deleteItem")
-deleteItems.forEach(itemdelete => {
-
-
-  itemdelete.addEventListener('click', deletequantity)
-})
-let productsChanges = document.querySelectorAll(".itemQuantity")
-productsChanges.forEach(el => {
-  el.addEventListener('change', ModifQuantity)
-})
 
 
 function ModifQuantity(e) {
@@ -99,7 +100,7 @@ function ModifQuantity(e) {
 }
 
 function deletequantity(e) {
-
+  
   const article = e.target.closest("article")
   const id = article.dataset.id
   const color = article.dataset.color
@@ -109,7 +110,9 @@ function deletequantity(e) {
 
   localStorage.cart = JSON.stringify(ls)
   article.remove()
-  // location.href = "cart.html"
+  TotalQuantity(e)
+
+
 }
 
 function TotalQuantity(e) {
