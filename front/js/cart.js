@@ -19,7 +19,7 @@ fetch("http://localhost:3000/api/products")
       console.log(id);
 
       color = item.split(" ")[1]
-      item = products.filter(el => el._id == id)
+      item = products.filter(el => el._id == id)[0]
 
 
 
